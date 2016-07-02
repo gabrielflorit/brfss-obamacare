@@ -32,7 +32,7 @@ Make sure your data and R Markdown files are in the same directory. When loaded 
 
 The [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss) is a yearly telephone survey that collects data on health-related risk behaviors.
 
-The population of interest is US residents 18 years or older. To perform the survey, researchers use Random Digit Dialing to call thousands of adults -- 506,000 in 2014 -- in all 50 states, DC, and three US territories.
+The population of interest is non-institutionalized US residents 18 years or older. To perform the survey, researchers use Random Digit Dialing to call thousands of adults -- 506,000 in 2014 -- in all 50 states, DC, and three US territories.
 
 The study might suffer from **coverage bias** because not all US residents own a landline or cellphone. This might mean the study underrepresents hard-to-reach groups.
 
