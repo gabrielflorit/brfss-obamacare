@@ -30,9 +30,13 @@ Make sure your data and R Markdown files are in the same directory. When loaded 
 
 ## Part 1: Data
 
-The [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss) is a yearly telephone survey that collects data on health-related risk behaviors in all 50 states, DC, and three US territories.
+The [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss) is a yearly telephone survey that collects data on health-related risk behaviors.
 
-As an observational study, the BRFSS is conducted by random sampling. This means that the survey results can be generalized to the population, but since there is no random assignment, there can be no causality.
+The population of interest is US residents 18 years or older. To perform the survey, researchers use Random Digit Dialing to call thousands of adults -- 506,000 in 2014 -- in all 50 states, DC, and three US territories.
+
+The study might suffer from **coverage bias** because not all US residents own a landline or cellphone. This might mean the study underrepresents hard-to-reach groups.
+
+As an observational study, the BRFSS is conducted by random sampling, which means the survey results can be generalized to the population (if we assume there is no bias and the sample is representative of the population.) Since there is no random assignment, the survey cannot be used to establish causality relationships.
 
 * * *
 
