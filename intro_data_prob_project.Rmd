@@ -14,6 +14,7 @@ output:
 ```{r load-packages, message = FALSE}
 library(ggplot2)
 library(dplyr)
+library(gmodels)
 setwd("~/Desktop/week5")
 ```
 
@@ -39,12 +40,11 @@ As an observational study, the BRFSS is conducted by random sampling, which mean
 
 ## Part 2: Research questions
 
-**Research question 1:**
+**Research question 1:** Is general health associated to a lack of health care coverage? **explain why this is of interest to the author/audience**
 
 **Research question 2:**
 
 **Research question 3:**
-
 
 * * *
 
@@ -52,31 +52,42 @@ As an observational study, the BRFSS is conducted by random sampling, which mean
 
 **Research question 1:**
 
-What is the distribution of general health, and is it associated to a lack of health care coverage?
+Is general health associated to a lack of health care coverage? We can answer this by making a contingency table of general health (*genhlth*) and health care coverage (*X_hcvu651*):
 
 ```{r}
+health_coverage.table <- prop.table(table(brfss2013$genhlth, brfss2013$X_hcvu651), 2)
+health_coverage.table
+```
 
-health_coverage <- brfss2013 %>%
-	select(Health=genhlth, Coverage=X_hcvu651) %>%
-	na.omit
+The proportions vary within general health, which provides evidence that these two variables are associated. We can also look at a couple graphs - first, a histogram:
+```{r}
+# Convert to data frame for plotting
+health_coverage.data <- as.data.frame(health_coverage.table) %>%
+	rename(Health = Var1, Coverage = Var2, Proportion = Freq)
 
-health_coverage.distro <- health_coverage %>%
-	group_by(Coverage, Health) %>%
-	summarise(n = n()) %>%
-	mutate(freq = n / sum(n))
-	
-ggplot(health_coverage.distro, aes(Health, freq, fill=Coverage)) +
+ggplot(health_coverage.data, aes(Health, Proportion, fill=Coverage)) +
 	geom_bar(stat='identity', position='dodge') +
-	ylab('Percent') +
 	labs(
 		title='Distribution of general health by health care coverage',
 		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
-	) +
-	scale_y_continuous(labels=scales::percent)
-	
+	)
 ```
 
+Next, a mosaic-like bar plot:
+```{r}
+ggplot(health_coverage.data, aes(Coverage, Proportion, fill=Health)) +
+	geom_bar(stat='identity') +
+	labs(
+		title='Distribution of general health by health care coverage',
+		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
+	)
+```
 
+In both these graphs we see that the general health proportions vary by coverage, which provides visual evidence that these two variables are associated.
+
+***
+
+next
 
 
 
