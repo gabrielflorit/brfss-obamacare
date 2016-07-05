@@ -76,38 +76,17 @@ ggplot(health_coverage.distro, aes(Health, freq, fill=Coverage)) +
 	
 ```
 
-	group_by(genhlth, X_hcvu651) %>%
-	summarise (n = n()) %>%
-  mutate(freq = n / sum(n)) %>%
-	ggplot(aes(genhlth, freq, fill=X_hcvu651)) +
-	geom_bar(stat='identity', position='dodge')
-
-	
-	
-```
-	
-	
-	ggplot(aes(genhlth, fill=X_hcvu651)) +
-	geom_bar() +
-	labs(title='Distribution of general health')
 
 
 
-```
 
 
 
-**Research question 2:**
-
-```{r}
-
-```
 
 
 
-**Research question 3:**
 
-```{r}
 
-```
+
+
 
