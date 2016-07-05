@@ -14,17 +14,14 @@ output:
 ```{r load-packages, message = FALSE}
 library(ggplot2)
 library(dplyr)
+setwd("~/Desktop/week5")
 ```
 
 ### Load data
 
-Make sure your data and R Markdown files are in the same directory. When loaded your data file will be called `brfss2013`. **Delete this note before you submit your work.** 
-
 ```{r load-data}
-#load("brfss2013.RData")
+load('brfss2013.RData')
 ```
-
-
 
 * * *
 
@@ -53,11 +50,48 @@ As an observational study, the BRFSS is conducted by random sampling, which mean
 
 ## Part 3: Exploratory data analysis
 
-NOTE: Insert code chunks as needed by clicking on the "Insert a new code chunk" button (green button with orange arrow) above. Make sure that your code is visible in the project you submit. Delete this note before you submit your work.
-
 **Research question 1:**
 
+What is the distribution of general health, and is it associated to a lack of health care coverage?
+
 ```{r}
+
+health_coverage <- brfss2013 %>%
+	select(Health=genhlth, Coverage=X_hcvu651) %>%
+	na.omit
+
+health_coverage.distro <- health_coverage %>%
+	group_by(Coverage, Health) %>%
+	summarise(n = n()) %>%
+	mutate(freq = n / sum(n))
+	
+ggplot(health_coverage.distro, aes(Health, freq, fill=Coverage)) +
+	geom_bar(stat='identity', position='dodge') +
+	ylab('Percent') +
+	labs(
+		title='Distribution of general health by health care coverage',
+		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
+	) +
+	scale_y_continuous(labels=scales::percent)
+	
+```
+
+	group_by(genhlth, X_hcvu651) %>%
+	summarise (n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+	ggplot(aes(genhlth, freq, fill=X_hcvu651)) +
+	geom_bar(stat='identity', position='dodge')
+
+	
+	
+```
+	
+	
+	ggplot(aes(genhlth, fill=X_hcvu651)) +
+	geom_bar() +
+	labs(title='Distribution of general health')
+
+
 
 ```
 
