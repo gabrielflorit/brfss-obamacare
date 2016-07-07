@@ -15,7 +15,7 @@ It's been more than six years since President Obama signed the Affordable Care A
 
 The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, **is there an association between health care coverage and general health-related characteristics?**
 
-We will try to answer this question by looking at the [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss), a yearly telephone survey that collects data on health-related risk behaviors.
+I'll try to answer this question by looking at the [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss), a yearly telephone survey that collects data on health-related risk behaviors.
 
 * * *
 
@@ -25,15 +25,15 @@ The population of interest is non-institutionalized US residents 18 years or old
 
 The study might suffer from **coverage bias** because not all US residents own a landline or cellphone. This might mean the study underrepresents hard-to-reach groups.
 
-As an observational study, the BRFSS is conducted by random sampling, which means the survey results can be generalized to the population (if we assume there is no bias and the sample is representative of the population.) Since there is no random assignment, the survey cannot be used to establish causality relationships.
+As an observational study, the BRFSS is conducted by random sampling, which means the survey results can be generalized to the population (assuming there is no bias and the sample is representative of the population.) Since there is no random assignment, the survey cannot be used to establish causality relationships.
 
 * * *
 
 ## Part 2: Research questions
 
-**Research question 1:** Is there an association between health care coverage and general health? In other words, is health insurance associated with better health?
+**Research question 1:** Is health insurance tied to better health? I'll answer that by looking at the association between health care coverage and general health.
 
-**Research question 2:** Is there an association between health care coverage and not being able to see a doctor because of cost? In other words, if you have insurance, is it more likely that you'll be able to afford a doctor visit? Which states have the highest proportion of insured residents unable to see a doctor due to cost?
+**Research question 2:** If you have insurance, is it more likely you'll be able to afford a doctor visit? Also, which states have the highest proportion of insured residents unable to see a doctor due to cost? I'll answer these by looking at the association between health care coverage and not being able to see a doctor due to cost.
 
 **Research question 3:**
 
@@ -55,8 +55,10 @@ setwd("~/Desktop/week5")
 ```{r load-data}
 load('brfss2013.RData')
 ```
+
 * * *
-**Research question 1:** Is general health associated to a lack of health care coverage? We can answer this by making a contingency table of general health (*genhlth*) and health care coverage (for respondents aged 18-64 with any form of coverage) (*X_hcvu651*):
+
+**Research question 1:** Is general health associated to a lack of health care coverage? Let's look at a contingency table of general health (*genhlth*) and health care coverage (for respondents aged 18-64 with any form of coverage) (*X_hcvu651*):
 
 ```{r}
 
@@ -66,6 +68,7 @@ health_coverage.table
 ```
 
 The proportions vary within general health, which provides evidence that these two variables are associated. We can also look at a couple graphs - first, a histogram:
+
 ```{r}
 
 # Convert to data frame for plotting
@@ -82,12 +85,13 @@ ggplot(health_coverage.data, aes(Health, Proportion, fill=Coverage)) +
 ```
 
 Next, a mosaic-like bar plot:
+
 ```{r}
 
 ggplot(health_coverage.data, aes(Coverage, Proportion, fill=Health)) +
 	geom_bar(stat='identity') +
 	labs(
-		title='Distribution of general health by health care coverage',
+		title='Proportions of general health by health care coverage',
 		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
 	)
 
@@ -97,24 +101,81 @@ In both these graphs we see that the general health proportions vary by coverage
 
 * * *
 
-**Research question 2:** Is there an association between health care coverage and not being able to see a doctor because of cost? Let's answer this with a contingency table of health care coverage (for respondents aged 18-64 with any form of coverage) (*X_hcvu651*) and not being able to see the doctor due to cost (*medcost*): 
+**Research question 2:** Is there an association between health care coverage and not being able to see a doctor because of cost? Here's another contingency table, this time of health care coverage (for respondents aged 18-64 with any form of coverage) (*X_hcvu651*) and not being able to see the doctor due to cost (*medcost*): 
 
 ```{r}
 
-prop.table(table(brfss2013$X_hcvu651, brfss2013$medcost), 1)
+coverage_cost.table <- prop.table(table(brfss2013$X_hcvu651, brfss2013$medcost), 1)
+coverage_cost.table
 
 ```
 
-Of those residents with insurance, about 10% say they couldn't see the doctor due to cost. This shows us that the two variables are associated.
+Of those residents with insurance, about 10% say they couldn't see the doctor due to cost. This tells me the two variables are associated. We can reach the same conclusion graphically -- here's a mosaic plot:
+
+```{r}
+
+# Convert to data frame for plotting
+as.data.frame(coverage_cost.table) %>%
+	rename(Coverage = Var1, Doctor.too.costly = Var2, Proportion = Freq) %>%
+	ggplot(aes(Coverage, Proportion, fill=Doctor.too.costly)) +
+	geom_bar(stat='identity') +
+	labs(
+		title='Inability to see doctor due to cost by health care coverage',
+		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
+	)
+
+```
 
 * * * 
 
-Next let's look at the states with the highest proportion of insured residents unable to see the doctor due to cost.
+Next I'll look at the states with the highest proportion of insured residents unable to see the doctor due to cost.
 
 ```{r}
 
+cost.states <- brfss2013 %>%
+	select(Coverage = X_hcvu651, Cost = medcost, State = X_state) %>%
+	filter(Coverage == 'Have health care coverage') %>%
+	select(-Coverage) %>%
+	na.omit %>%
+	group_by(State, Cost) %>%
+	summarise(n = n()) %>%
+	mutate(Doctor.too.costly = n / sum(n)) %>%
+	filter(Cost == 'Yes') %>%
+	select(State, Doctor.too.costly) %>%
+	arrange(-Doctor.too.costly)
+
+cost.states
 
 ```
+
+The first two are territories. The rest of the top ten entries are states with varying demographics: New Mexico has a large share of hispanics, Mississippi is the poorest state, Florida has a high percentage of retirees... I'm curious as to the driving force behind these proportions. Is it correlated to the state's uninsured rate? 
+
+```{r}
+
+brfss2013 %>%
+	select(Coverage = X_hcvu651, State = X_state) %>%
+	na.omit %>%
+	group_by(State, Coverage) %>%
+	summarise(n = n()) %>%
+	mutate(Uninsured = n / sum(n)) %>%
+	filter(Coverage == 'Do not have health care coverage') %>%
+	select(State, Uninsured) %>%
+	inner_join(cost.states, by=c('State')) %>%
+	ggplot(aes(Doctor.too.costly, Uninsured)) +
+	geom_point() +
+	scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) +
+	xlab('Residents unable to see doctor due to cost') +
+	ylab('Uninsured') +
+	labs(
+		title = 'Uninsured rate and inability to see doctor due to cost, by state',
+		subtitle='Respondents are aged 18-64 who do not have any form of health care coverage'
+	)
+
+```
+
+Visually the correlation seems pretty high - as the uninsured rate increases, so does the state's proportion of residents unable to see the doctor due to cost. However, I think maybe this is a flawed comparison: if a state has a high number of uninsured residents, then most likely a large proportion of them will not be able to see the doctor, unless the median income is really high -- correct? I'm not 100% sure on the validity of this graph, so I'll keep it here -- it is visually compelling.
+
+```{r}
 
 brfss2013 %>%
 	select(Coverage = X_hcvu651, Age = X_age80) %>%
@@ -129,22 +190,6 @@ brfss2013 %>%
 ```
 
 ```{r}
-
-prop.table(table(brfss2013$X_hcvu651, brfss2013$medcost), 1)
-health_coverage.table
-
-brfss2013 %>%
-	select(Coverage = X_hcvu651, Cost = medcost) %>%
-	na.omit %>%
-	head
-	
-	filter(Age > 17, Age < 65) %>%
-	na.omit %>%
-	group_by(Coverage, Age) %>%
-	summarise(n = n()) %>%
-  mutate(Proportion = n / sum(n)) %>%
-	ggplot(aes(Age, Proportion, color=Coverage)) +
-	geom_step()
 
 ```
 
