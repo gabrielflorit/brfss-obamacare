@@ -1,5 +1,6 @@
 ---
-title: "Exploring the BRFSS data"
+title: 'Does Obamacare affect health positively?'
+author: 'Gabriel Florit'
 output: 
   html_document: 
     fig_height: 4
@@ -13,7 +14,7 @@ output:
 
 It's been more than six years since President Obama signed the Affordable Care Act into law. The administration credits Obamacare -- as it is colloquially known -- for lowering the number of uninsured residents: down 11 million since its passage, according to a March 2015 report by the Centers for Disease Control and Prevention.
 
-The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, **is there an association between health care coverage and general health-related characteristics - does insurance positively affect health?**
+The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, **is there an association between health care coverage and general health-related characteristics - does insurance positively affect health positively?**
 
 I'll try to answer this question by looking at the [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss), a yearly telephone survey that collects data on health-related risk behaviors.
 
@@ -93,7 +94,7 @@ brfss2013 %>%
 
 ```
 
-This chart clearly shows young people are more likely to not be insured, compared to their older counterparts.
+This chart shows young people are more likely to not be insured compared to their older counterparts.
 
 * * * 
 
@@ -108,7 +109,7 @@ health_coverage.table
 
 The proportions vary within general health, which provides evidence that these two variables are associated. We can also look at a couple graphs - first, a histogram:
 
-```{r}
+```{r, fig.height=3, fig.width=6}
 
 # Convert to data frame for plotting
 health_coverage.data <- as.data.frame(health_coverage.table) %>%
@@ -125,7 +126,7 @@ ggplot(health_coverage.data, aes(Health, Proportion, fill=Coverage)) +
 
 Next, a mosaic-like bar plot:
 
-```{r}
+```{r, fig.height=3, fig.width=6}
 
 ggplot(health_coverage.data, aes(Coverage, Proportion, fill=Health)) +
 	geom_bar(stat='identity') +
@@ -151,7 +152,7 @@ coverage_cost.table
 
 Of those residents with insurance, about 10% say they couldn't see the doctor due to cost. This tells me the two variables are associated. We can reach the same conclusion graphically -- here's a mosaic plot:
 
-```{r}
+```{r, fig.height=3, fig.width=6}
 
 # Convert to data frame for plotting
 as.data.frame(coverage_cost.table) %>%
@@ -189,7 +190,7 @@ cost.states
 
 The first two are territories. The rest of the top ten entries are states with varying demographics: New Mexico has a large share of hispanics, Mississippi is the poorest state, Florida has a high percentage of retirees... I'm curious as to the driving force behind these proportions. Is it correlated to the state's uninsured rate? 
 
-```{r}
+```{r, fig.height=5}
 
 uninsured.states <- brfss2013 %>%
 	select(Coverage = X_hcvu651, State = X_state) %>%
@@ -202,8 +203,10 @@ uninsured.states <- brfss2013 %>%
 
 uninsured.states %>%
 	inner_join(cost.states, by=c('State')) %>%
-	ggplot(aes(Doctor.too.costly, Uninsured)) +
+	ggplot(aes(Doctor.too.costly, Uninsured,
+		label=ifelse((Uninsured > 4*IQR(Uninsured))|(Doctor.too.costly > 5*IQR(Doctor.too.costly)), as.character(State), ''))) +
 	geom_point() +
+	geom_text(size=4, vjust=-0.35, hjust=0.5) +
 	scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) +
 	xlab('Residents unable to see doctor due to cost') +
 	ylab('Uninsured') +
@@ -253,12 +256,14 @@ flu.states
 
 The first entry here, Puerto Rico, was also in the top two in the previous list of states with the highest proportion of insured residents unable to see the doctor due to cost. The others are not all alike: Arizona, Wisconsin, Idaho, Alaska... interesting. Like before, let's see if there's a correlation with uninsured rates:
 
-```{r}
+```{r, fig.height=5}
 
 uninsured.states %>%
 	inner_join(flu.states, by=c('State')) %>%
-	ggplot(aes(Shot.proportion, Uninsured)) +
+	ggplot(aes(Shot.proportion, Uninsured,
+		label=ifelse((Uninsured > 3.5*IQR(Uninsured))|(Shot.proportion > 7*IQR(Shot.proportion)), as.character(State), ''))) +
 	geom_point() +
+	geom_text(size=4, vjust=-0.5, hjust=1) +
 	scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) +
 	xlab('Residents that got the flu shot within the last 12 months') +
 	ylab('Uninsured') +
