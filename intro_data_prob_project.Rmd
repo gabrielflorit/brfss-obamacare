@@ -79,7 +79,7 @@ ggplot(health_coverage.data, aes(Health, Proportion, fill=Coverage)) +
 	geom_bar(stat='identity', position='dodge') +
 	labs(
 		title='Distribution of general health by health care coverage',
-		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
+		subtitle='Respondents are aged 18-64'
 	)
 
 ```
@@ -92,7 +92,7 @@ ggplot(health_coverage.data, aes(Coverage, Proportion, fill=Health)) +
 	geom_bar(stat='identity') +
 	labs(
 		title='Proportions of general health by health care coverage',
-		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
+		subtitle='Respondents are aged 18-64'
 	)
 
 ```
@@ -121,7 +121,7 @@ as.data.frame(coverage_cost.table) %>%
 	geom_bar(stat='identity') +
 	labs(
 		title='Inability to see doctor due to cost by health care coverage',
-		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
+		subtitle='Respondents are aged 18-64'
 	)
 
 ```
@@ -185,7 +185,11 @@ brfss2013 %>%
 	summarise(n = n()) %>%
   mutate(Proportion = n / sum(n)) %>%
 	ggplot(aes(Age, Proportion, color=Coverage)) +
-	geom_step()
+	geom_step() +
+	labs(
+		title='Distribution of age by health coverage',
+		subtitle='Respondents are aged 18-64'
+	)
 
 ```
 
