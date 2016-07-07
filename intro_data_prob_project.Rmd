@@ -7,7 +7,39 @@ output:
     theme: spacelab
 ---
 
-## Setup
+* * *
+
+## Part 0: Introduction
+
+It's been more than six years since President Obama signed the Affordable Care Act into law. The administration credits Obamacare -- as it is colloquially known -- for lowering the number of uninsured residents: down 11 million since its passage, according to a March 2015 report by the Centers for Disease Control and Prevention.
+
+The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, is there an association between health care coverage and general health-related characteristics?
+
+We will try to answer this question by looking at the [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss), a yearly telephone survey that collects data on health-related risk behaviors.
+
+* * *
+
+## Part 1: Data
+
+The population of interest is non-institutionalized US residents 18 years or older. To perform the survey, BRFSS researchers use Random Digit Dialing to call thousands of adults -- 506,000 in 2014 -- in all 50 states, DC, and three US territories.
+
+The study might suffer from **coverage bias** because not all US residents own a landline or cellphone. This might mean the study underrepresents hard-to-reach groups.
+
+As an observational study, the BRFSS is conducted by random sampling, which means the survey results can be generalized to the population (if we assume there is no bias and the sample is representative of the population.) Since there is no random assignment, the survey cannot be used to establish causality relationships.
+
+* * *
+
+## Part 2: Research questions
+
+**Research question 1:** **provide a smooth transition from previous section to this one** Is general health associated to a lack of health care coverage? **explain why this is of interest to the author/audience**
+
+**Research question 2:**
+
+**Research question 3:**
+
+* * *
+
+## Part 3: Exploratory data analysis
 
 ### Load packages
 
@@ -23,32 +55,6 @@ setwd("~/Desktop/week5")
 ```{r load-data}
 load('brfss2013.RData')
 ```
-
-* * *
-
-## Part 1: Data
-
-The [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss) is a yearly telephone survey that collects data on health-related risk behaviors.
-
-The population of interest is non-institutionalized US residents 18 years or older. To perform the survey, researchers use Random Digit Dialing to call thousands of adults -- 506,000 in 2014 -- in all 50 states, DC, and three US territories.
-
-The study might suffer from **coverage bias** because not all US residents own a landline or cellphone. This might mean the study underrepresents hard-to-reach groups.
-
-As an observational study, the BRFSS is conducted by random sampling, which means the survey results can be generalized to the population (if we assume there is no bias and the sample is representative of the population.) Since there is no random assignment, the survey cannot be used to establish causality relationships.
-
-* * *
-
-## Part 2: Research questions
-
-**Research question 1:** Is general health associated to a lack of health care coverage? **explain why this is of interest to the author/audience**
-
-**Research question 2:**
-
-**Research question 3:**
-
-* * *
-
-## Part 3: Exploratory data analysis
 
 **Research question 1:**
 
