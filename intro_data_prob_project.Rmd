@@ -13,7 +13,7 @@ output:
 
 It's been more than six years since President Obama signed the Affordable Care Act into law. The administration credits Obamacare -- as it is colloquially known -- for lowering the number of uninsured residents: down 11 million since its passage, according to a March 2015 report by the Centers for Disease Control and Prevention.
 
-The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, is there an association between health care coverage and general health-related characteristics?
+The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, **is there an association between health care coverage and general health-related characteristics?**
 
 We will try to answer this question by looking at the [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss), a yearly telephone survey that collects data on health-related risk behaviors.
 
@@ -31,7 +31,7 @@ As an observational study, the BRFSS is conducted by random sampling, which mean
 
 ## Part 2: Research questions
 
-**Research question 1:** **provide a smooth transition from previous section to this one** Is general health associated to a lack of health care coverage? **explain why this is of interest to the author/audience**
+**Research question 1:** Given the range of uninsured residents (17% - 5%), is there an association between health care coverage and general health?
 
 **Research question 2:**
 
@@ -55,10 +55,8 @@ setwd("~/Desktop/week5")
 ```{r load-data}
 load('brfss2013.RData')
 ```
-
-**Research question 1:**
-
-Is general health associated to a lack of health care coverage? We can answer this by making a contingency table of general health (*genhlth*) and health care coverage (*X_hcvu651*):
+* * *
+**Research question 1:** Is general health associated to a lack of health care coverage? We can answer this by making a contingency table of general health (*genhlth*) and health care coverage (*X_hcvu651*):
 
 ```{r}
 health_coverage.table <- prop.table(table(brfss2013$genhlth, brfss2013$X_hcvu651), 2)
