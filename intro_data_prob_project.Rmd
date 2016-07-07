@@ -56,15 +56,18 @@ setwd("~/Desktop/week5")
 load('brfss2013.RData')
 ```
 * * *
-**Research question 1:** Is general health associated to a lack of health care coverage? We can answer this by making a contingency table of general health (*genhlth*) and health care coverage (*X_hcvu651*):
+**Research question 1:** Is general health associated to a lack of health care coverage? We can answer this by making a contingency table of general health (*genhlth*) and health care coverage (for respondents aged 18-64 with any form of coverage) (*X_hcvu651*):
 
 ```{r}
+
 health_coverage.table <- prop.table(table(brfss2013$genhlth, brfss2013$X_hcvu651), 2)
 health_coverage.table
+
 ```
 
 The proportions vary within general health, which provides evidence that these two variables are associated. We can also look at a couple graphs - first, a histogram:
 ```{r}
+
 # Convert to data frame for plotting
 health_coverage.data <- as.data.frame(health_coverage.table) %>%
 	rename(Health = Var1, Coverage = Var2, Proportion = Freq)
@@ -75,23 +78,67 @@ ggplot(health_coverage.data, aes(Health, Proportion, fill=Coverage)) +
 		title='Distribution of general health by health care coverage',
 		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
 	)
+
 ```
 
 Next, a mosaic-like bar plot:
 ```{r}
+
 ggplot(health_coverage.data, aes(Coverage, Proportion, fill=Health)) +
 	geom_bar(stat='identity') +
 	labs(
 		title='Distribution of general health by health care coverage',
 		subtitle='Respondents are aged 18-64 who have any form of health care coverage'
 	)
+
 ```
 
 In both these graphs we see that the general health proportions vary by coverage, which provides visual evidence that these two variables are associated.
 
 ***
 
-next
+```{r}
+
+brfss2013 %>%
+	select(Coverage = X_hcvu651, Age = X_age80) %>%
+	filter(Age > 17, Age < 65) %>%
+	na.omit %>%
+	group_by(Coverage, Age) %>%
+	summarise(n = n()) %>%
+  mutate(Proportion = n / sum(n)) %>%
+	ggplot(aes(Age, Proportion, color=Coverage)) +
+	geom_step()
+
+```
+
+brfss2013 %>%
+	select(Coverage = X_hcvu651, State = X_state, Sleep = X_age80) %>%
+	filter(State == 'Alabama') %>%
+	na.omit %>%
+	group_by(State, Coverage) %>%
+	summarise(n = n(), sleep = mean(Sleep)) %>%
+  mutate(freq = n / sum(n)) %>%
+	head
+	
+```
+
+```{r}
+
+# Convert to data frame for plotting
+brfss2013 %>%
+	select(Coverage = X_hcvu651, State = X_state, Age = X_age80) %>%
+	na.omit %>%
+	group_by(State, Coverage) %>%
+	summarise(n = n(), Age.median = median(Age)) %>%
+  mutate(Uninsured = n / sum(n)) %>%
+	filter(Coverage == 'Have health care coverage') %>%
+	ggplot(aes(Age.median, Uninsured)) +
+	geom_point()
+
+
+
+
+```
 
 
 
