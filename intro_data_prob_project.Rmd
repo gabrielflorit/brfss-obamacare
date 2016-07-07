@@ -13,7 +13,7 @@ output:
 
 It's been more than six years since President Obama signed the Affordable Care Act into law. The administration credits Obamacare -- as it is colloquially known -- for lowering the number of uninsured residents: down 11 million since its passage, according to a March 2015 report by the Centers for Disease Control and Prevention.
 
-The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, **is there an association between health care coverage and general health-related characteristics?**
+The uninsured rate varies between states, from 17% in Texas to 5% in Massachusetts, according to the Kaiser Family Foundation. Given this range of uninsured residents, **is there an association between health care coverage and general health-related characteristics - does insurance positively affect health?**
 
 I'll try to answer this question by looking at the [Behavioral Risk Factor Surveillance System](http://www.cdc.gov/brfss), a yearly telephone survey that collects data on health-related risk behaviors.
 
@@ -31,11 +31,13 @@ As an observational study, the BRFSS is conducted by random sampling, which mean
 
 ## Part 2: Research questions
 
+**Research question 0:** Are young people more likely to be insured / uninsured? I'll answer that by looking at the median of age by coverage.
+
 **Research question 1:** Is health insurance tied to better health? I'll answer that by looking at the association between health care coverage and general health.
 
 **Research question 2:** If you have insurance, is it more likely you'll be able to afford a doctor visit? Also, which states have the highest proportion of insured residents unable to see a doctor due to cost? I'll answer these by looking at the association between health care coverage and not being able to see a doctor due to cost.
 
-**Research question 3:**
+**Research question 3:** If you have insurance, is it more likely you'll get the flu vaccine? Also, which states have the highest proportion of insured residents getting the flu vaccine? I'll answer these two by looking at the association between health care coverage and the flu vaccine.
 
 * * *
 
@@ -47,7 +49,7 @@ As an observational study, the BRFSS is conducted by random sampling, which mean
 library(ggplot2)
 library(dplyr)
 library(gmodels)
-setwd("~/Desktop/week5")
+setwd("~/Desktop/brfss-obamacare")
 ```
 
 ### Load data
@@ -57,6 +59,43 @@ load('brfss2013.RData')
 ```
 
 * * *
+
+**Research question 0:** Are young people more likely to be insured / uninsured? Let's first look at the median age by coverage:
+
+```{r}
+
+brfss2013 %>%
+	select(Coverage = X_hcvu651, Age = X_age80) %>%
+	filter(Age > 17, Age < 65) %>%
+	na.omit %>%
+	group_by(Coverage) %>%
+	summarise(age.median = median(Age))
+
+```
+
+The median for uninsured residents is 43 years, compared to 49 for those with insurance. Let's make a histogram of age by insurance:
+
+```{r}
+
+brfss2013 %>%
+	select(Coverage = X_hcvu651, Age = X_age80) %>%
+	filter(Age > 17, Age < 65) %>%
+	na.omit %>%
+	group_by(Coverage, Age) %>%
+	summarise(n = n()) %>%
+  mutate(Proportion = n / sum(n)) %>%
+	ggplot(aes(Age, Proportion, color=Coverage)) +
+	geom_step() +
+	labs(
+		title='Distribution of age by health coverage',
+		subtitle='Respondents are aged 18-64'
+	)
+
+```
+
+This chart clearly shows young people are more likely to not be insured, compared to their older counterparts.
+
+* * * 
 
 **Research question 1:** Is general health associated to a lack of health care coverage? Let's look at a contingency table of general health (*genhlth*) and health care coverage (for respondents aged 18-64 with any form of coverage) (*X_hcvu651*):
 
@@ -152,14 +191,16 @@ The first two are territories. The rest of the top ten entries are states with v
 
 ```{r}
 
-brfss2013 %>%
+uninsured.states <- brfss2013 %>%
 	select(Coverage = X_hcvu651, State = X_state) %>%
 	na.omit %>%
 	group_by(State, Coverage) %>%
 	summarise(n = n()) %>%
 	mutate(Uninsured = n / sum(n)) %>%
 	filter(Coverage == 'Do not have health care coverage') %>%
-	select(State, Uninsured) %>%
+	select(State, Uninsured)
+
+uninsured.states %>%
 	inner_join(cost.states, by=c('State')) %>%
 	ggplot(aes(Doctor.too.costly, Uninsured)) +
 	geom_point() +
@@ -173,41 +214,60 @@ brfss2013 %>%
 
 ```
 
-Visually the correlation seems pretty high - as the uninsured rate increases, so does the state's proportion of residents unable to see the doctor due to cost. However, I think maybe this is a flawed comparison: if a state has a high number of uninsured residents, then most likely a large proportion of them will not be able to see the doctor, unless the median income is really high -- correct? I'm not 100% sure on the validity of this graph, so I'll keep it here -- it is visually compelling.
+Visually the correlation seems pretty high - as the uninsured rate increases, so does the state's proportion of residents unable to see the doctor due to cost. Maybe this is a flawed comparison: if a state has a high number of uninsured residents, then most likely a large proportion of them will not be able to see the doctor, unless the median income is really high -- correct? I'm not 100% sure on the validity of this graph, so I'll keep it here -- it is visually compelling.
+
+* * *
+
+**Research question 3:** Finally, is there an association between insurance and the flu vaccine? I'll answer that with a contingency table of coverage and getting the flu shot within the last 12 months (*flushot6*):
 
 ```{r}
 
-brfss2013 %>%
-	select(Coverage = X_hcvu651, Age = X_age80) %>%
-	filter(Age > 17, Age < 65) %>%
+coverage_flu.table <- prop.table(table(brfss2013$X_hcvu651, brfss2013$flushot6), 1)
+coverage_flu.table
+
+```
+
+About 42% of insured residents got the shot. This shows that the two variables are associated (if not, we would expect the rate to be more like 50%). It's also interesting to note that about 20% of uninsured residents got the shot.
+
+* * *
+
+What states have the lowest proportion of insured residents that got the flu shot within the last 12 months?
+
+```{r}
+
+flu.states <- brfss2013 %>%
+	select(Coverage = X_hcvu651, Shot = flushot6, State = X_state) %>%
+	filter(Coverage == 'Have health care coverage') %>%
+	select(-Coverage) %>%
 	na.omit %>%
-	group_by(Coverage, Age) %>%
+	group_by(State, Shot) %>%
 	summarise(n = n()) %>%
-  mutate(Proportion = n / sum(n)) %>%
-	ggplot(aes(Age, Proportion, color=Coverage)) +
-	geom_step() +
+	mutate(Shot.proportion = n / sum(n)) %>%
+	filter(Shot == 'Yes') %>%
+	select(State, Shot.proportion) %>%
+	arrange(Shot.proportion)
+
+flu.states
+
+```
+
+The first entry here, Puerto Rico, was also in the top two in the previous list of states with the highest proportion of insured residents unable to see the doctor due to cost. The others are not all alike: Arizona, Wisconsin, Idaho, Alaska... interesting. Like before, let's see if there's a correlation with uninsured rates:
+
+```{r}
+
+uninsured.states %>%
+	inner_join(flu.states, by=c('State')) %>%
+	ggplot(aes(Shot.proportion, Uninsured)) +
+	geom_point() +
+	scale_x_continuous(labels = scales::percent) + scale_y_continuous(labels = scales::percent) +
+	xlab('Residents that got the flu shot within the last 12 months') +
+	ylab('Uninsured') +
 	labs(
-		title='Distribution of age by health coverage',
-		subtitle='Respondents are aged 18-64'
+		title = 'Uninsured rate and flu shot, by state',
+		subtitle='Respondents are aged 18-64 who do not have any form of health care coverage'
 	)
 
 ```
 
-```{r}
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Interesting! This time the correlation is not as strong. There might be other things driving people to get/avoid the vaccine, including education, rural makeup, religious exemptions, etc.
+	
